@@ -7,5 +7,3 @@ edition = "2021"
 
 [dependencies]
 evdev-rs = { version = "0.6.1", features = ["serde", "libevdev-1-10"] }
-fcntl = "0.1.0"
-subprocess = "0.2.9"
