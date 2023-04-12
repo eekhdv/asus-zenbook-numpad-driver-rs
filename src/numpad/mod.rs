@@ -1,2 +1,2 @@
-pub mod ctrl;
 mod brightness;
+pub mod ctrl;
