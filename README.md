@@ -1,6 +1,6 @@
 # Numpad-touchpad Linux driver for Asus Zenbook
 > On linux there is no numericpad support for my laptop "out of the box", so I will try to implement it.
-<br />
+
 
 ## Screenshot (photo tbe)
 <details>
