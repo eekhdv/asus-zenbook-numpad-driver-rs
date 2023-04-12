@@ -2,14 +2,54 @@ use std::fs::File;
 mod um433d;
 
 use evdev_rs::{
-    enums::EventCode, Device, DeviceWrapper, InputEvent, ReadFlag, TimeVal,
-    UInputDevice, UninitDevice,
+    enums::EventCode, Device, DeviceWrapper, InputEvent, ReadFlag, TimeVal, UInputDevice,
+    UninitDevice,
 };
+
+#[derive(Debug)]
+enum BrightnessLevelKind {
+    OFF,
+    LOWEST,
+    LOW,
+    HIGH,
+    HIGHEST,
+}
+
+#[derive(Debug)]
+struct BrightnessLevel {
+    level: BrightnessLevelKind,
+}
+
+impl BrightnessLevel {
+    fn get_lvl(&self) -> &str {
+        match self.level {
+            BrightnessLevelKind::OFF => "0x0",
+            BrightnessLevelKind::LOWEST => "0x2f",
+            BrightnessLevelKind::LOW => "0x11",
+            BrightnessLevelKind::HIGH => "0x31",
+            BrightnessLevelKind::HIGHEST => "0x1",
+        }
+    }
+}
+
+struct NumpadBrightnessController {
+    cmd: String,
+    brightness: BrightnessLevel,
+}
+
+impl NumpadBrightnessController {
+    fn new() -> Self {
+        Self { cmd: "i2ctransfer -f -y 0 w13@0x15 0x05 0x00 0x3d 0x03 0x06 0x00 0x07 0x00 0x0d 0x14 0x03 0x0 0xad".to_string(), brightness: {BrightnessLevel { level: BrightnessLevelKind::OFF }}}
+    }
+    fn with_level(b: BrightnessLevel) -> Self {
+        Self { cmd: format!("i2ctransfer -f -y 0 w13@0x15 0x05 0x00 0x3d 0x03 0x06 0x00 0x07 0x00 0x0d 0x14 0x03 {} 0xad", b.get_lvl()), brightness: b }
+    }
+}
 
 fn main() {
     let fd_tp = File::open("/dev/input/event9").unwrap();
     let mut d_tp = Device::new_from_file(fd_tp).unwrap(); // Opens in O_NONBLOCK
-    //
+                                                          //
     let abs_x_info = d_tp
         .abs_info(&EventCode::EV_ABS(evdev_rs::enums::EV_ABS::ABS_X))
         .unwrap();
