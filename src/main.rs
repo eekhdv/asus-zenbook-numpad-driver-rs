@@ -1,12 +1,11 @@
 mod numpad;
 mod touchpad;
 mod um433d;
-
 use numpad::ctrl::NumpadBrightnessController;
 use touchpad::{button::CalcButton, dim::TouchpadDimenstions};
 
 use evdev_rs::{
-    enums::EventCode, Device, DeviceWrapper, InputEvent, ReadFlag, TimeVal, UInputDevice,
+    enums::EventCode, Device, DeviceWrapper, ReadFlag, UInputDevice,
     UninitDevice,
 };
 
@@ -53,18 +52,6 @@ fn main() {
         }
     }
     let udev = UInputDevice::create_from_device(&numpad_dev).unwrap();
-    udev.write_event(&InputEvent::new(
-        &TimeVal::new(0, 0),
-        &EventCode::EV_KEY(evdev_rs::enums::EV_KEY::KEY_NUMLOCK),
-        1,
-    ))
-    .unwrap();
-    udev.write_event(&InputEvent::new(
-        &TimeVal::new(0, 0),
-        &EventCode::EV_SYN(evdev_rs::enums::EV_SYN::SYN_REPORT),
-        0,
-    ))
-    .unwrap();
     let mut calc_button = CalcButton::new(&tp_dim);
     let mut trg_button = TriangleButton::new();
     let mut nctrl = NumpadBrightnessController::new();
@@ -89,23 +76,28 @@ fn main() {
                     }
                     if pressed && calc_button.pressed(tap_pos) {
                         if calc_button.active() {
-                            nctrl.turn_off(&mut d_tp);
+                            nctrl.turn_off(&mut d_tp, &udev);
                             if log_enabled!(log::Level::Info) {
                                 info!("Numpad turned off");
                             }
                         } else {
-                            nctrl.turn_on(&mut d_tp);
+                            nctrl.turn_on(&mut d_tp, &udev);
                             if log_enabled!(log::Level::Info) {
                                 info!("Numpad turned on");
                             }
                         }
                         calc_button.change_state();
+                        continue;
                     }
                     if pressed && trg_button.pressed(tap_pos) && calc_button.active() {
                         nctrl.change_brightness();
                         if log_enabled!(log::Level::Info) {
                             info!("Change numpad's brightness {:?}", nctrl.get_brightness());
                         }
+                        continue;
+                    }
+                    if pressed {
+
                     }
                 }
                 _ => (),
