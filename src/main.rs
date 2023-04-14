@@ -14,7 +14,10 @@ use std::fs::File;
 
 use crate::touchpad::button::TriangleButton;
 
+use log::{debug, info, log_enabled};
+
 fn main() {
+    env_logger::init();
     let fd_tp = File::open("/dev/input/event9").unwrap();
     let mut d_tp = Device::new_from_file(fd_tp).unwrap(); // Opens in O_NONBLOCK
 
@@ -25,8 +28,8 @@ fn main() {
             .unwrap(),
     );
 
-    println!("Touchpad AbsXInfo:\n{:#?}", tp_dim.get_max_x());
-    println!("Touchpad AbsYInfo:\n{:#?}", tp_dim.get_max_y());
+    debug!("Touchpad AbsXInfo: {:?}", tp_dim.get_max_x());
+    debug!("Touchpad AbsYInfo: {:?}", tp_dim.get_max_y());
 
     let numpad_dev = UninitDevice::new().unwrap();
     numpad_dev.set_name("Asus UM433D Numpad/Touchpad");
@@ -79,16 +82,30 @@ fn main() {
                 }
                 EventCode::EV_KEY(evdev_rs::enums::EV_KEY::BTN_TOOL_FINGER) => {
                     pressed = ev.1.value == 1;
+                    if log_enabled!(log::Level::Info) {
+                        if pressed {
+                            info!("Pressed at position x:{} y:{}", tap_pos.0, tap_pos.1);
+                        }
+                    }
                     if pressed && calc_button.pressed(tap_pos) {
                         if calc_button.active() {
                             nctrl.turn_off(&mut d_tp);
+                            if log_enabled!(log::Level::Info) {
+                                info!("Numpad turned off");
+                            }
                         } else {
                             nctrl.turn_on(&mut d_tp);
+                            if log_enabled!(log::Level::Info) {
+                                info!("Numpad turned on");
+                            }
                         }
                         calc_button.change_state();
                     }
                     if pressed && trg_button.pressed(tap_pos) && calc_button.active() {
                         nctrl.change_brightness();
+                        if log_enabled!(log::Level::Info) {
+                            info!("Change numpad's brightness {:?}", nctrl.get_brightness());
+                        }
                     }
                 }
                 _ => (),

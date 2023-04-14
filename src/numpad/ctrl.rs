@@ -21,6 +21,10 @@ impl NumpadBrightnessController {
         Exec::shell(self.get_cmd()).join().unwrap();
     }
 
+    pub fn get_brightness(&self) -> String {
+        self.brightness.to_string()
+    }
+
     pub fn get_cmd(&self) -> &str {
         &self.cmd
     }

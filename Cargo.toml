@@ -6,5 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+env_logger = "0.10.0"
 evdev-rs = { version = "0.6.1", features = ["serde", "libevdev-1-10"] }
+log = "0.4.17"
 subprocess = "0.2.9"
