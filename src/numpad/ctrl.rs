@@ -32,14 +32,14 @@ impl NumpadBrightnessController {
     }
 
     pub fn turn_off(&mut self, tp: &mut Device) {
-        tp.grab(evdev_rs::GrabMode::Grab).unwrap();
+        tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
         self.brightness.level = BrightnessLevel::default().level;
         self.build_cmd();
         self.run_cmd();
     }
 
     pub fn turn_on(&mut self, tp: &mut Device) {
-        tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
+        tp.grab(evdev_rs::GrabMode::Grab).unwrap();
         self.change_brightness();
         self.run_cmd();
     }
