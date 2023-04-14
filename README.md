@@ -15,10 +15,12 @@
 - [x] 5 levels of brightness
 - [x] So far only for model UM433D
 - [x] Use log instead of println :)
+- [x] Make numpad work (UM433D only)
 
 ## Additional features - unimplemented!()
-- [ ] Make numpad work
+- [ ] implement the finding of the corresponding Touchpad event in /proc/bus/input/devices
 - [ ] Implement for different Asus Zenbook models with/without % symbol
+- [ ] systemd module
 
 ## Thanks!
 Thanks to Mohamed Badaoui for his [Python implementation](https://github.com/mohamed-badaoui/asus-touchpad-numpad-driver) and inspiration.
