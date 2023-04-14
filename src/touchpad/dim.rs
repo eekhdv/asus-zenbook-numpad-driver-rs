@@ -1,6 +1,5 @@
 use evdev_rs::AbsInfo;
 
-
 #[derive(Debug)]
 pub struct TouchpadDimenstions {
     x: AbsInfo,
@@ -18,4 +17,3 @@ impl TouchpadDimenstions {
         self.y.maximum
     }
 }
-

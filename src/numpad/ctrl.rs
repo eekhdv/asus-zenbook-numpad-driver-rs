@@ -37,7 +37,7 @@ impl NumpadBrightnessController {
         self.build_cmd();
         self.run_cmd();
     }
-    
+
     pub fn turn_on(&mut self, tp: &mut Device) {
         tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
         self.change_brightness();
