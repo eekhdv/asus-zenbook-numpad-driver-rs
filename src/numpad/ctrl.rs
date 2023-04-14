@@ -1,4 +1,6 @@
 use super::brightness::BrightnessLevel;
+use evdev_rs::Device;
+use subprocess::Exec;
 
 #[derive(Debug)]
 pub struct NumpadBrightnessController {
@@ -10,8 +12,13 @@ impl NumpadBrightnessController {
     pub fn new() -> Self {
         Self::from(BrightnessLevel::default())
     }
+
     fn build_cmd(&mut self) {
         *self = Self::from(self.brightness);
+    }
+
+    fn run_cmd(&self) {
+        Exec::shell(self.get_cmd()).join().unwrap();
     }
 
     pub fn get_cmd(&self) -> &str {
@@ -19,8 +26,22 @@ impl NumpadBrightnessController {
     }
 
     pub fn change_brightness(&mut self) {
-        self.brightness.level += 1;
+        self.brightness.level >>= 1;
         self.build_cmd();
+        self.run_cmd();
+    }
+
+    pub fn turn_off(&mut self, tp: &mut Device) {
+        tp.grab(evdev_rs::GrabMode::Grab).unwrap();
+        self.brightness.level = BrightnessLevel::default().level;
+        self.build_cmd();
+        self.run_cmd();
+    }
+    
+    pub fn turn_on(&mut self, tp: &mut Device) {
+        tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
+        self.change_brightness();
+        self.run_cmd();
     }
 }
 
