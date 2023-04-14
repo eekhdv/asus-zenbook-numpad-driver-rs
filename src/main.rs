@@ -4,10 +4,7 @@ mod um433d;
 use numpad::ctrl::NumpadBrightnessController;
 use touchpad::{button::CalcButton, dim::TouchpadDimenstions};
 
-use evdev_rs::{
-    enums::EventCode, Device, DeviceWrapper, ReadFlag, UInputDevice,
-    UninitDevice,
-};
+use evdev_rs::{enums::EventCode, Device, DeviceWrapper, ReadFlag, UInputDevice, UninitDevice};
 
 use std::fs::File;
 
@@ -46,7 +43,7 @@ fn main() {
         .unwrap();
     let numpad_keys = um433d::KeyCodes::new();
 
-    for row in numpad_keys.rows {
+    for row in &numpad_keys.rows {
         for key in row {
             numpad_dev.enable_event_code(&key, None).unwrap();
         }
@@ -74,30 +71,43 @@ fn main() {
                             info!("Pressed at position x:{} y:{}", tap_pos.0, tap_pos.1);
                         }
                     }
-                    if pressed && calc_button.pressed(tap_pos) {
-                        if calc_button.active() {
-                            nctrl.turn_off(&mut d_tp, &udev);
-                            if log_enabled!(log::Level::Info) {
-                                info!("Numpad turned off");
-                            }
-                        } else {
-                            nctrl.turn_on(&mut d_tp, &udev);
-                            if log_enabled!(log::Level::Info) {
-                                info!("Numpad turned on");
-                            }
-                        }
-                        calc_button.change_state();
-                        continue;
-                    }
-                    if pressed && trg_button.pressed(tap_pos) && calc_button.active() {
-                        nctrl.change_brightness();
-                        if log_enabled!(log::Level::Info) {
-                            info!("Change numpad's brightness {:?}", nctrl.get_brightness());
-                        }
-                        continue;
-                    }
                     if pressed {
-
+                        if calc_button.pressed(tap_pos) {
+                            if calc_button.active() {
+                                nctrl.turn_off(&mut d_tp, &udev);
+                                if log_enabled!(log::Level::Info) {
+                                    info!("Numpad turned off");
+                                }
+                            } else {
+                                nctrl.turn_on(&mut d_tp, &udev);
+                                if log_enabled!(log::Level::Info) {
+                                    info!("Numpad turned on");
+                                }
+                            }
+                            calc_button.change_state();
+                            continue;
+                        }
+                        if trg_button.pressed(tap_pos) && calc_button.active() {
+                            nctrl.change_brightness();
+                            if log_enabled!(log::Level::Info) {
+                                info!("Change numpad's brightness {:?}", nctrl.get_brightness());
+                            }
+                            continue;
+                        }
+                        if calc_button.active() {
+                            let col: usize =
+                                (tap_pos.0 / (tp_dim.get_max_x() / 5)).try_into().unwrap();
+                            let row: usize =
+                                (tap_pos.1 / (tp_dim.get_max_y() / 4)).try_into().unwrap();
+                            if log_enabled!(log::Level::Info) {
+                                info!("Choosed tab at row {} and column {}", row, col);
+                            }
+                            let event = numpad_keys.get_keycode(row, col);
+                            nctrl.send_event(&udev, event);
+                            if log_enabled!(log::Level::Info) {
+                                info!("Sent event {}", event);
+                            }
+                        }
                     }
                 }
                 _ => (),
