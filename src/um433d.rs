@@ -36,6 +36,10 @@ impl KeyCodes {
             EventCode::EV_KEY(evdev_rs::enums::EV_KEY::KEY_KPPLUS),
             EventCode::EV_KEY(evdev_rs::enums::EV_KEY::KEY_KPEQUAL),
         ]);
-        KeyCodes { rows: numpad_keys }
+        Self { rows: numpad_keys }
+    }
+
+    pub fn get_keycode(&self, row: usize, col: usize) -> &EventCode {
+        &self.rows[row][col]
     }
 }
