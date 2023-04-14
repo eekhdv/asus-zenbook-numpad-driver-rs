@@ -22,5 +22,41 @@
 - [ ] Implement for different Asus Zenbook models with/without % symbol
 - [ ] systemd module
 
+## How to run (temporary instruction for tough guys)
+### Prerequisites
+#### Install `rustup`:
+> Read ["Installation"] from ['The Rust Programming Language' book].
+
+["Installation"]: https://doc.rust-lang.org/book/ch01-01-installation.html
+['The Rust Programming Language' book]: https://doc.rust-lang.org/book/index.html
+
+#### Install [ libevdev i2c-tools git ]
+##### I hope you're using archlinux :-)
+```sh
+$ sudo pacman -S libevdev i2c-tools git
+```
+
+### Load i2c-dev module
+```sh
+$ sudo modprobe i2c-dev
+```
+
+### Clone
+```sh
+$ git clone https://github.com/khadievedem/asus-zenbook-numpad-driver-rs
+$ cd ./asus-zenbook-numpad-driver-rs
+```
+
+### Run
+#### without Debug info
+```sh
+$ sudo cargo run
+```
+#### with Debug info
+```sh
+$ sudo RUST_LOG=debug cargo run
+```
+
+
 ## Thanks!
 Thanks to Mohamed Badaoui for his [Python implementation](https://github.com/mohamed-badaoui/asus-touchpad-numpad-driver) and inspiration.
