@@ -14,9 +14,9 @@
 - [x] Switching LED on touchpad
 - [x] 5 levels of brightness
 - [x] So far only for model UM433D
+- [x] Use log instead of println :)
 
 ## Additional features - unimplemented!()
-- [ ] Use logging instead of println :)
 - [ ] Make numpad work
 - [ ] Implement for different Asus Zenbook models with/without % symbol
 
