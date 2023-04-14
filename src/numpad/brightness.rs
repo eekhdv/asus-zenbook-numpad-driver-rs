@@ -1,4 +1,4 @@
-use std::ops::AddAssign;
+use std::ops::ShrAssign;
 
 #[derive(Debug, Clone, Copy)]
 pub(super) enum BrightnessLevelKind {
@@ -9,8 +9,8 @@ pub(super) enum BrightnessLevelKind {
     HIGHEST,
 }
 
-impl AddAssign<i32> for BrightnessLevelKind {
-    fn add_assign(&mut self, _: i32) {
+impl ShrAssign<u8> for BrightnessLevelKind {
+    fn shr_assign(&mut self, _rhs: u8) {
         *self = match *self {
             Self::OFF => Self::HIGHEST,
             Self::LOWEST => Self::OFF,
