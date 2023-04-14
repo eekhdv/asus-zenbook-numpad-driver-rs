@@ -52,6 +52,5 @@ impl ToString for BrightnessLevel {
             BrightnessLevelKind::HIGH => "HIGH".to_string(),
             BrightnessLevelKind::HIGHEST => "HIGHEST".to_string(),
         }
-        
     }
 }
