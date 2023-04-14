@@ -13,7 +13,7 @@ impl ShrAssign<u8> for BrightnessLevelKind {
     fn shr_assign(&mut self, _rhs: u8) {
         *self = match *self {
             Self::OFF => Self::HIGHEST,
-            Self::LOWEST => Self::OFF,
+            Self::LOWEST => Self::HIGHEST,
             Self::LOW => Self::LOWEST,
             Self::HIGH => Self::LOW,
             Self::HIGHEST => Self::HIGH,
@@ -40,5 +40,18 @@ impl BrightnessLevel {
             BrightnessLevelKind::HIGH => "0x31",
             BrightnessLevelKind::HIGHEST => "0x1",
         }
+    }
+}
+
+impl ToString for BrightnessLevel {
+    fn to_string(&self) -> String {
+        match self.level {
+            BrightnessLevelKind::OFF => "OFF".to_string(),
+            BrightnessLevelKind::LOW => "LOW".to_string(),
+            BrightnessLevelKind::LOWEST => "LOWEST".to_string(),
+            BrightnessLevelKind::HIGH => "HIGH".to_string(),
+            BrightnessLevelKind::HIGHEST => "HIGHEST".to_string(),
+        }
+        
     }
 }
