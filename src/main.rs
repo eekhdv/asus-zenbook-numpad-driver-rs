@@ -1,55 +1,18 @@
 mod numpad;
+mod touchpad;
 mod um433d;
 
 use numpad::ctrl::NumpadBrightnessController;
-use std::fs::File;
+use touchpad::{button::CalcButton, dim::TouchpadDimenstions};
 
 use evdev_rs::{
-    enums::EventCode, AbsInfo, Device, DeviceWrapper, InputEvent, ReadFlag, TimeVal, UInputDevice,
+    enums::EventCode, Device, DeviceWrapper, InputEvent, ReadFlag, TimeVal, UInputDevice,
     UninitDevice,
 };
 
-use subprocess::Exec;
+use std::fs::File;
 
-#[derive(Debug)]
-struct TouchpadDimenstions {
-    x: AbsInfo,
-    y: AbsInfo,
-}
-
-impl TouchpadDimenstions {
-    fn new(x: AbsInfo, y: AbsInfo) -> Self {
-        Self { x: (x), y: (y) }
-    }
-    fn get_max_x(&self) -> i32 {
-        self.x.maximum
-    }
-    fn get_max_y(&self) -> i32 {
-        self.y.maximum
-    }
-}
-
-#[derive(Debug, Default)]
-struct CalcButton {
-    pub pressed: bool,
-    x_pos: i32,
-    y_pos: i32,
-}
-
-impl CalcButton {
-    fn new(tp: &TouchpadDimenstions) -> Self {
-        Self {
-            pressed: false,
-            x_pos: tp.get_max_x() - 250,
-            y_pos: 250,
-        }
-    }
-
-    fn is_pressed(&mut self, tap_pos: (i32, i32)) -> bool {
-        self.pressed = tap_pos.0 >= self.x_pos && tap_pos.1 <= self.y_pos;
-        self.pressed
-    }
-}
+use crate::touchpad::button::TriangleButton;
 
 fn main() {
     let fd_tp = File::open("/dev/input/event9").unwrap();
@@ -99,14 +62,12 @@ fn main() {
         0,
     ))
     .unwrap();
-    d_tp.grab(evdev_rs::GrabMode::Grab).unwrap();
-    // d_tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
     let mut calc_button = CalcButton::new(&tp_dim);
+    let mut trg_button = TriangleButton::new();
     let mut nctrl = NumpadBrightnessController::new();
     let mut tap_pos: (i32, i32) = (0, 0);
     let mut pressed;
 
-    Exec::shell(nctrl.get_cmd()).join().unwrap();
     loop {
         if let Ok(ev) = d_tp.next_event(ReadFlag::NORMAL) {
             match ev.1.event_code {
@@ -118,9 +79,16 @@ fn main() {
                 }
                 EventCode::EV_KEY(evdev_rs::enums::EV_KEY::BTN_TOOL_FINGER) => {
                     pressed = ev.1.value == 1;
-                    if pressed && calc_button.is_pressed(tap_pos) {
+                    if pressed && calc_button.pressed(tap_pos) {
+                        if calc_button.active() {
+                            nctrl.turn_off(&mut d_tp);
+                        } else {
+                            nctrl.turn_on(&mut d_tp);
+                        }
+                        calc_button.change_state();
+                    }
+                    if pressed && trg_button.pressed(tap_pos) && calc_button.active() {
                         nctrl.change_brightness();
-                        Exec::shell(&nctrl.get_cmd()).join().unwrap();
                     }
                 }
                 _ => (),
