@@ -50,6 +50,24 @@ impl NumpadBrightnessController {
         self.run_cmd();
     }
 
+    pub fn send_event(&self, udev: &UInputDevice, ec: &EventCode) {
+        let ie = InputEvent::new(&TimeVal::new(0, 0), ec, 1);
+        let syn_report = InputEvent::new(
+            &TimeVal::new(0, 0),
+            &EventCode::EV_SYN(evdev_rs::enums::EV_SYN::SYN_REPORT),
+            0,
+        );
+        udev.write_event(&ie).unwrap();
+        udev.write_event(&syn_report).unwrap();
+        Self::kill_event(udev, ec, &syn_report);
+    }
+
+    fn kill_event(udev: &UInputDevice, ec: &EventCode, syn_report: &InputEvent) {
+        let ie = InputEvent::new(&TimeVal::new(0, 0), ec, 0);
+        udev.write_event(&ie).unwrap();
+        udev.write_event(&syn_report).unwrap();
+    }
+
     fn send_key_numlock_event(n: i32, udev: &UInputDevice) {
         let key_numlock = InputEvent::new(
             &TimeVal::new(0, 0),
