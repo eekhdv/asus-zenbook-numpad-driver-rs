@@ -1,5 +1,5 @@
 use super::brightness::BrightnessLevel;
-use evdev_rs::Device;
+use evdev_rs::{enums::EventCode, Device, InputEvent, TimeVal, UInputDevice};
 use subprocess::Exec;
 
 #[derive(Debug)]
@@ -35,17 +35,34 @@ impl NumpadBrightnessController {
         self.run_cmd();
     }
 
-    pub fn turn_off(&mut self, tp: &mut Device) {
+    pub fn turn_off(&mut self, tp: &mut Device, udev: &UInputDevice) {
+        Self::send_key_numlock_event(0, udev);
         tp.grab(evdev_rs::GrabMode::Ungrab).unwrap();
         self.brightness.level = BrightnessLevel::default().level;
         self.build_cmd();
         self.run_cmd();
     }
 
-    pub fn turn_on(&mut self, tp: &mut Device) {
+    pub fn turn_on(&mut self, tp: &mut Device, udev: &UInputDevice) {
+        Self::send_key_numlock_event(1, udev);
         tp.grab(evdev_rs::GrabMode::Grab).unwrap();
         self.change_brightness();
         self.run_cmd();
+    }
+
+    fn send_key_numlock_event(n: i32, udev: &UInputDevice) {
+        let key_numlock = InputEvent::new(
+            &TimeVal::new(0, 0),
+            &EventCode::EV_KEY(evdev_rs::enums::EV_KEY::KEY_NUMLOCK),
+            n,
+        );
+        let syn_report = InputEvent::new(
+            &TimeVal::new(0, 0),
+            &EventCode::EV_SYN(evdev_rs::enums::EV_SYN::SYN_REPORT),
+            0,
+        );
+        udev.write_event(&key_numlock).unwrap();
+        udev.write_event(&syn_report).unwrap();
     }
 }
 
