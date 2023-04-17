@@ -16,6 +16,7 @@
 - [x] So far only for model UM433D
 - [x] Use log instead of println :)
 - [x] Make numpad work (UM433D only)
+- [x] Support for a custom application starts on the upper left button press
 
 ## Additional features - unimplemented!()
 - [ ] implement the finding of the corresponding Touchpad event in /proc/bus/input/devices
@@ -50,12 +51,13 @@ $ cd ./asus-zenbook-numpad-driver-rs
 ### Run
 #### without Debug info
 ```sh
-$ sudo cargo run
+$ sudo cargo run *arg
 ```
 #### with Debug info
 ```sh
-$ sudo RUST_LOG=debug cargo run
+$ sudo RUST_LOG=debug cargo run *arg
 ```
+> Add *arg - the path to your application binary that will run when you press on upper-left button
 
 
 ## Thanks!
