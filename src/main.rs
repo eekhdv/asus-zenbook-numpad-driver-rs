@@ -103,9 +103,13 @@ fn main() {
                             && !app_launch.is_empty()
                         {
                             debug!("Run application: {}", app_launch);
-                            Exec::shell(format!("nohup sudo -u $(logname) \"{app_launch}\""))
+                            Exec::shell(format!("nohup sudo -b -u $(logname) \"{app_launch}\""))
                                 .join()
                                 .unwrap();
+                            nctrl.turn_on(&mut d_tp, &udev);
+                            if log_enabled!(log::Level::Info) {
+                                info!("Numpad turned on");
+                            }
                             continue;
                         }
                         if calc_button.active() {
