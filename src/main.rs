@@ -2,11 +2,12 @@ mod numpad;
 mod touchpad;
 mod um433d;
 use numpad::ctrl::NumpadBrightnessController;
+use subprocess::Exec;
 use touchpad::{button::CalcButton, dim::TouchpadDimenstions};
 
 use evdev_rs::{enums::EventCode, Device, DeviceWrapper, ReadFlag, UInputDevice, UninitDevice};
 
-use std::fs::File;
+use std::{env, fs::File};
 
 use crate::touchpad::button::TriangleButton;
 
@@ -14,6 +15,9 @@ use log::{debug, info, log_enabled};
 
 fn main() {
     env_logger::init();
+    let args: Vec<String> = env::args().collect();
+    let app_launch = if args.len() > 1 { &args[1] } else { "" };
+
     let fd_tp = File::open("/dev/input/event9").unwrap();
     let mut d_tp = Device::new_from_file(fd_tp).unwrap(); // Opens in O_NONBLOCK
 
@@ -91,6 +95,20 @@ fn main() {
                             nctrl.change_brightness();
                             if log_enabled!(log::Level::Info) {
                                 info!("Change numpad's brightness {:?}", nctrl.get_brightness());
+                            }
+                            continue;
+                        }
+                        if trg_button.pressed(tap_pos)
+                            && !calc_button.active()
+                            && !app_launch.is_empty()
+                        {
+                            debug!("Run application: {}", app_launch);
+                            Exec::shell(format!("nohup sudo -b -u $(logname) \"{app_launch}\""))
+                                .join()
+                                .unwrap();
+                            nctrl.turn_on(&mut d_tp, &udev);
+                            if log_enabled!(log::Level::Info) {
+                                info!("Numpad turned on");
                             }
                             continue;
                         }
