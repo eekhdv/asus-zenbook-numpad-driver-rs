@@ -1,12 +1,12 @@
 use evdev_rs::AbsInfo;
 
 #[derive(Debug)]
-pub struct TouchpadDimenstions {
+pub struct TouchpadDimensions {
     x: AbsInfo,
     y: AbsInfo,
 }
 
-impl TouchpadDimenstions {
+impl TouchpadDimensions {
     pub fn new(x: AbsInfo, y: AbsInfo) -> Self {
         Self { x: (x), y: (y) }
     }

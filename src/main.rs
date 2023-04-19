@@ -3,7 +3,7 @@ mod touchpad;
 mod um433d;
 use numpad::ctrl::NumpadBrightnessController;
 use subprocess::Exec;
-use touchpad::{button::CalcButton, dim::TouchpadDimenstions};
+use touchpad::{button::CalcButton, dim::TouchpadDimensions};
 
 use evdev_rs::{enums::EventCode, Device, DeviceWrapper, ReadFlag, UInputDevice, UninitDevice};
 
@@ -21,7 +21,7 @@ fn main() {
     let fd_tp = File::open("/dev/input/event9").unwrap();
     let mut d_tp = Device::new_from_file(fd_tp).unwrap(); // Opens in O_NONBLOCK
 
-    let tp_dim = TouchpadDimenstions::new(
+    let tp_dim = TouchpadDimensions::new(
         d_tp.abs_info(&EventCode::EV_ABS(evdev_rs::enums::EV_ABS::ABS_X))
             .unwrap(),
         d_tp.abs_info(&EventCode::EV_ABS(evdev_rs::enums::EV_ABS::ABS_Y))

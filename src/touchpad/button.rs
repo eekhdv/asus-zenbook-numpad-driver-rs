@@ -1,4 +1,4 @@
-use super::dim::TouchpadDimenstions;
+use super::dim::TouchpadDimensions;
 
 #[derive(Debug, Default)]
 pub struct CalcButton {
@@ -8,7 +8,7 @@ pub struct CalcButton {
 }
 
 impl CalcButton {
-    pub fn new(tp: &TouchpadDimenstions) -> Self {
+    pub fn new(tp: &TouchpadDimensions) -> Self {
         Self {
             active: false,
             x_pos: tp.get_max_x() - 250,
